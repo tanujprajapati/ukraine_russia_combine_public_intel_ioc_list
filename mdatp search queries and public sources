@@ -1,0 +1,53 @@
+//https://github.com/Orange-Cyberdefense/russia-ukraine_IOCs/blob/main/OCD-Datalake-russia-ukraine_IOCs-ALL.csv 
+
+let datapool1 = externaldata (ioctype:string,iocvalue:string,first_seen:string,last_updated:string,subcategories:string,threat_scores:string,threat_types:string ) [@"https://raw.githubusercontent.com/Orange-Cyberdefense/russia-ukraine_IOCs/main/OCD-Datalake-russia-ukraine_IOCs-ALL.csv" ] with  (format="csv",ignoreFirstRecord=true);
+let maldomain = ( datapool1| where ioctype contains "domain"| project iocvalue);
+let malip = (datapool1 | where ioctype  contains "ip" | project iocvalue);
+let malhash = (datapool1 | where ioctype contains "file" | project iocvalue);
+union DeviceProcessEvents,DeviceFileEvents, DeviceNetworkEvents, EmailAttachmentInfo,EmailUrlInfo, EmailEvents
+| where MD5 in~ (malhash) or SHA256 in~ (malhash) or RemoteIP in~ (malip) or RemoteUrl in~ (maldomain) or UrlDomain in~ (maldomain) or SenderIPv4 in~ (malip)
+
+
+//https://github.com/KraLot12/Ukraine-Russia-IOCs/blob/main/ioc_ukraine_01032022.csv//
+let datapool2 = externaldata (campaign_name:string,ioc_type:string,ioc_value:string  ) [@"https://raw.githubusercontent.com/KraLot12/Ukraine-Russia-IOCs/main/ioc_ukraine_01032022.csv" ] with  (format="csv",ignoreFirstRecord=true);
+let maldomain1 = (datapool2| where ioc_type contains "domainname"| project ioc_value);
+let malip1 = (datapool2 | where ioc_type  contains "ipaddress" | project ioc_value);
+let malhash1 = (datapool2 | where ioc_type contains "filesha256" | project ioc_value);
+union DeviceProcessEvents,DeviceFileEvents, DeviceNetworkEvents, EmailAttachmentInfo,EmailUrlInfo, EmailEvents
+| where MD5 in~ (malhash1) or SHA256 in~ (malhash1) or RemoteIP in~ (malip1) or RemoteUrl in~ (maldomain1) or UrlDomain in~ (maldomain1) or SenderIPv4 in~ (malip1)
+
+
+//https://raw.githubusercontent.com/KraLot12/Ukraine-Russia-IOCs/main/ioc_ukraine.01032022.csv
+//https://github.com/KraLot12/Ukraine-Russia-IOCs/blob/main/ioc_ukraine_01032022.csv//
+let datapool2 = externaldata (campaign_name:string,ioc_type:string,ioc_value:string  ) [@"https://raw.githubusercontent.com/KraLot12/Ukraine-Russia-IOCs/main/ioc_ukraine_01032022.csv" ] with  (format="csv",ignoreFirstRecord=true);
+let maldomain1 = (datapool2| where ioc_type contains "domainname"| project ioc_value);
+let malip1 = (datapool2 | where ioc_type  contains "ipaddress" | project ioc_value);
+let malhash1 = (datapool2 | where ioc_type contains "filesha256" | project ioc_value);
+union DeviceProcessEvents,DeviceFileEvents, DeviceNetworkEvents, EmailAttachmentInfo,EmailUrlInfo, EmailEvents
+| where MD5 in~ (malhash1) or SHA256 in~ (malhash1) or RemoteIP in~ (malip1) or RemoteUrl in~ (maldomain1) or UrlDomain in~ (maldomain1) or SenderIPv4 in~ (malip1)
+
+//https://github.com/curated-intel/Ukraine-Cyber-Operations/blob/main/ETAC_Vetted_UkraineRussiaWar_IOCs.csv
+h
+// combine ioc list search query- tanuj 
+let datapool4 = externaldata (domain:string ) [@"https://raw.githubusercontent.com/tanujprajapati/ukraine_russia_combine_public_intel_ioc_list/main/ioc_domain" ] with  (format="csv",ignoreFirstRecord=true)
+| project domain;
+union DeviceProcessEvents,DeviceFileEvents, DeviceNetworkEvents, EmailAttachmentInfo,EmailUrlInfo, EmailEvents
+| where RemoteUrl in~ (datapool4) or UrlDomain in~ (datapool4)
+| project DeviceName, ActionType, RemoteUrl, UrlDomain
+
+///// for hash values
+
+let datapool4 = externaldata (hashlist:string ) [@"https://raw.githubusercontent.com/tanujprajapati/ukraine_russia_combine_public_intel_ioc_list/main/ioc_hash_list" ] with  (format="csv",ignoreFirstRecord=true)
+| project hashlist;
+union DeviceProcessEvents,DeviceFileEvents, DeviceNetworkEvents, EmailAttachmentInfo,EmailUrlInfo, EmailEvents
+| where SHA1 in~ (datapool4) or SHA256 in~ (datapool4) or MD5 in~ (datapool4) or InitiatingProcessSHA1 in~ (datapool4) or InitiatingProcessSHA1 in~ (datapool4) or InitiatingProcessSHA256 in~ (datapool4 )
+| project DeviceName, ActionType, RemoteUrl, UrlDomain
+
+//// for ip address
+let datapool4 = externaldata (ip_list:string ) [@"hhttps://raw.githubusercontent.com/tanujprajapati/ukraine_russia_combine_public_intel_ioc_list/main/ioc_ip_list" ] with  (format="csv",ignoreFirstRecord=true)
+| project ip_list;
+union DeviceProcessEvents,DeviceFileEvents, DeviceNetworkEvents, EmailAttachmentInfo,EmailUrlInfo, EmailEvents
+| where RemoteUrl in~ (datapool4) or RemoteIP in~ (datapool4) or SenderIPv4 in~ (datapool4) 
+
+
+
